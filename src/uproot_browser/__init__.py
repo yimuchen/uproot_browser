@@ -1,1 +1,1 @@
-# This is just a place holder
+# This is just a placeholder

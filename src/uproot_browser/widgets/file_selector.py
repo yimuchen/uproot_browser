@@ -26,10 +26,8 @@ class DisplayCurrentFile(textual.containers.HorizontalGroup):
         self.display_treepath.styles.width = "40%"
 
     def update_paths(self, file_path: str | None, tree_path: str | None):
-        self.display_filename.clear()
-        self.display_treepath.clear()
-        self.display_filename.insert(str(file_path))
-        self.display_treepath.insert(str(tree_path))
+        self.display_filename.update(str(file_path))
+        self.display_treepath.update(str(tree_path))
 
 
 class FilePicker(textual.screen.ModalScreen):
