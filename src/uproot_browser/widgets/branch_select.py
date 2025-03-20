@@ -4,6 +4,7 @@ from typing import List
 import awkward
 import textual
 import textual.widgets
+import uproot
 from fuzzyfinder import fuzzyfinder
 
 
@@ -69,8 +70,8 @@ class BranchSelectList(textual.widgets.ListView):
     should be handled by the main text input field.
     """
 
-    def __init__(self, array: awkward.Array | None, *args, **kwargs):
-        self.original_fields = self.get_fields(array)
+    def __init__(self, ttree: uproot.TTree | None, *args, **kwargs):
+        self.original_fields = self.get_fields(ttree)
         super().__init__(*self.make_listitems(self.original_fields), *args, **kwargs)
         self.can_focus = False
         self.border_title = "Matched branches"
@@ -78,10 +79,11 @@ class BranchSelectList(textual.widgets.ListView):
         self.last_update = time.time()
 
     @classmethod
-    def get_fields(cls, array: awkward.Array | None) -> List[str]:
-        if array is None:
+    def get_fields(cls, ttree: uproot.TTree | None) -> List[str]:
+        if ttree is None:
             return []
-        return [f for f in array.fields]
+        # Split is required for compound objects
+        return [f.split("/")[-1] for f in ttree.keys()]
 
     @classmethod
     def make_listitems(cls, fields: List[str]) -> List[textual.widgets.ListItem]:

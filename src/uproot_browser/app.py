@@ -1,6 +1,6 @@
 import argparse
 import os
-from typing import Optional
+from typing import Optional, Dict
 
 # Methods for opening an array
 import awkward
@@ -33,7 +33,8 @@ class UprootBrowser(textual.app.App):
         self.file: Optional[str] = None
         self.tree_path: Optional[str] = None
         # The array proper for what is going to be displayed
-        self.array: Optional[awkward.Array] = None
+        self.lazy_array: Optional[uproot.models.TTree.Model_TTree] = None
+        self.array: Dict[str, awkward.Array] = {}
         self._load_file_memory(file_path, tree_path)
 
         # Display elements for choosing branches
