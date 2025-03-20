@@ -11,10 +11,10 @@ authors = [
     {name = "Yi-Mu 'Enoch' Chen"}
 ]
 dependencies = [
+    "uproot",
     "textual",
     "textual_plotext",
-    "thefuzz",
-    "uproot"
+    "fuzzyfinder"
 ]
 
 [project-scripts]

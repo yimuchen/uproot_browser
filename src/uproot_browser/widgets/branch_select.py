@@ -1,9 +1,10 @@
+import time
 from typing import List
 
 import awkward
 import textual
 import textual.widgets
-from thefuzz import fuzz
+from fuzzyfinder import fuzzyfinder
 
 
 class BranchSelectInput(textual.widgets.Input):
@@ -11,7 +12,7 @@ class BranchSelectInput(textual.widgets.Input):
     User input field to the branch fuzzy finder
     """
 
-    BINDINGS = textual.widgets.Input.BINDINGS + [
+    BINDINGS = [
         textual.app.Binding(
             "up",
             "move_list_up",
@@ -74,6 +75,7 @@ class BranchSelectList(textual.widgets.ListView):
         self.can_focus = False
         self.border_title = "Matched branches"
         self.styles.border = ("solid", "gray")
+        self.last_update = time.time()
 
     @classmethod
     def get_fields(cls, array: awkward.Array | None) -> List[str]:
@@ -93,23 +95,18 @@ class BranchSelectList(textual.widgets.ListView):
         self.extend(self.make_listitems(self.original_fields))
 
     def fuzzy_filter(self, input_str: str):
+        if time.time() - self.last_update < 0.050:
+            return  # De-bouncing
         self.clear()
-
-        def get_list():
-            if input_str == "":
-                return self.original_fields
-            ordered_list = [
-                (f, fuzz.partial_ratio(input_str, f) if len(f) >= len(input_str) else 0)
-                for f in self.original_fields
-            ]
-            ordered_list = [f for f in ordered_list if f[1] > 70]
-            ordered_list = sorted(ordered_list, key=lambda x: x[1], reverse=True)
-            return [f[0] for f in ordered_list]
-            return
-
+        new_list = (
+            self.original_fields
+            if input_str == ""
+            else fuzzyfinder(input_str, self.original_fields)
+        )
         self.extend(
             [
                 textual.widgets.ListItem(textual.widgets.Static(f), name=f)
-                for f in get_list()
+                for f in new_list
             ]
         )
+        self.last_update = time.time()
