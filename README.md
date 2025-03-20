@@ -36,7 +36,10 @@ bottom column.
 
 ## A simple demo
 
-![A quick demo of this program running on CMS open data!](./example/example.webm)
+
+https://github.com/user-attachments/assets/7e5d37e9-b4c0-483b-b917-5c6dbd59012d
+
+A quick demo of this program running on CMS open data! Also available [here.](example/example.webm) 
 
 ## Road map to 1.0
 
