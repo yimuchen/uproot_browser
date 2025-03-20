@@ -8,9 +8,9 @@ import textual.widgets
 class DisplayCurrentFile(textual.containers.HorizontalGroup):
     """Always on items that is used to display the opened files"""
 
-    def __init__(self, *args, **kwargs):
-        self.display_filename = textual.widgets.TextArea("")
-        self.display_treepath = textual.widgets.TextArea("")
+    def __init__(self, file_path: str, tree_path: str, *args, **kwargs):
+        self.display_filename = textual.widgets.Static(str(file_path))
+        self.display_treepath = textual.widgets.Static(str(tree_path))
         super().__init__(self.display_filename, self.display_treepath)
 
         # Common styling items
@@ -38,10 +38,10 @@ class FilePicker(textual.screen.ModalScreen):
         textual.app.Binding("ctrl+o", "open_file", "Open new file"),
     ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, current_display: DisplayCurrentFile, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.file_input = textual.widgets.Input("myfile")
-        self.tree_input = textual.widgets.Input("Events")
+        self.file_input = textual.widgets.Input(current_display.display_filename._content)
+        self.tree_input = textual.widgets.Input(current_display.display_treepath._content)
 
         self.open_button = textual.widgets.Button(
             "[O]pen array", variant="primary", id="open"

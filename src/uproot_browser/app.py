@@ -19,8 +19,11 @@ from .widgets.dist_summary import DistributionSummary
 from .widgets.file_selector import DisplayCurrentFile, FilePicker
 
 
-class TuiApplication(textual.app.App):
-    BINDINGS = [textual.app.Binding("ctrl+o", "open_file_dialog", "Open file")]
+class UprootBrowser(textual.app.App):
+    BINDINGS = [
+        textual.app.Binding("ctrl+o", "open_file_dialog", "[O]pen File"),
+        textual.app.Binding("ctrl+r", "redraw_plot", "[R]edraw Plot"),
+    ]
 
     def __init__(
         self, file_path: Optional[str] = None, tree_path: Optional[str] = None
@@ -54,7 +57,7 @@ class TuiApplication(textual.app.App):
         )
 
         # Display elements for what the file that is opened
-        self.file_display = DisplayCurrentFile()
+        self.file_display = DisplayCurrentFile(file_path, tree_path)
         # Floating elements for displaying text help messages and dialog
         self.warn = WarningBlock()
         self.error = ErrorBlock()
@@ -92,7 +95,7 @@ class TuiApplication(textual.app.App):
             self._load_file_interface()
 
     def action_open_file_dialog(self):
-        self.push_screen(FilePicker())
+        self.push_screen(FilePicker(self.file_display))
 
     def _load_file_memory(self, file_path: str | None, tree_path: str | None) -> bool:
         self.file = None
@@ -154,6 +157,9 @@ class TuiApplication(textual.app.App):
         self.def_input.value = f"array['{branch_name}']"
         self.execute_plot()
 
+    def action_redraw_plot(self):
+        self.execute_plot()
+
     def execute_plot(self):
         run_process = self.def_input.value.replace("array", "self.array")
         array = eval(run_process)
@@ -163,7 +169,7 @@ class TuiApplication(textual.app.App):
 
 
 class PlotDefineInput(textual.widgets.Input):
-    BINDINGS = textual.widgets.Input.BINDINGS + [
+    BINDINGS = [
         textual.app.Binding(
             "enter",
             "execute_plot",
@@ -179,7 +185,6 @@ class PlotDefineInput(textual.widgets.Input):
         self.styles.border = ("solid", "gray")
 
     def action_execute_plot(self):
-        raise Exception("this is a test")
         self.app.execute_plot()
 
 
@@ -192,13 +197,16 @@ class WarningBlock(textual.widgets.Static):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.styles.background = "yellow"
-        self.styles.color = "orange"
+        self.styles.color = "black"
         self.border_title = "!!Warning!!"
         self.styles.border = ("solid", "orange")
-        self.styles.dock = "right"
         self.styles.max_height = 10  # Warning messages should be at most 10 lines tall
         self.styles.max_width = 40
+        self.styles.position = "absolute"
         self.styles.display = "none"
+
+    def display_message(self, msg):
+        self.update(msg)
 
 
 class ErrorBlock(textual.widgets.Static):
@@ -223,5 +231,5 @@ def main():
         default="Events",
     )
     args = parser.parse_args()
-    app = TuiApplication(args.file, args.tree_path)
+    app = UprootBrowser(args.file, args.tree_path)
     app.run()
