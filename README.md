@@ -36,6 +36,8 @@ bottom column.
 
 ## A simple demo
 
+![A quick demo of this program running on CMS open data!](./example/example.webm)
+
 ## Road map to 1.0
 
 Right now, the package is open to get gauge the general community interest in
